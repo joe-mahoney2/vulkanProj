@@ -15,7 +15,7 @@ Alrighty going to break this up into a few sections to start.
         portion of vk-bootstrap into perhapse seperate helper classes that   
         handle all of the setup via constructors/ cleanup via destructors  
   
-3. Current issues *feel free to work ahead with whatever workaround you can find*
+3. Current issues (feel free to work ahead with whatever workaround you can find)
     a  -Trying to use cmake to build and install glfw and vk-bootstrap correctly,
         at the moment if you open each via open directory in visual studio it will
         compile them down into .lib's, but im looking to do it via script or maybe
