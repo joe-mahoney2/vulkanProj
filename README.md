@@ -4,7 +4,7 @@ well see where this goes
 Alrighty going to break this up into a few sections to start.  
 
 1. What i'm using   
-    a  -shell = git bash (https://git-scm.com/downloads)  
+    a  -shell = git bash https://git-scm.com/downloads
     b  -visual studio (for now)  
     c  -visual studio code  
     d  -glfw - git clone https://github.com/charles-lunarg/vk-bootstrap.git  
