@@ -16,11 +16,7 @@ Alrighty going to break this up into a few sections to start.
         handle all of the setup via constructors/ cleanup via destructors  
   
 3. Current issues (feel free to work ahead with whatever workaround you can find)  
-    a  -Trying to use cmake to build and install glfw and vk-bootstrap correctly,
-        at the moment if you open each via open directory in visual studio it will
-        compile them down into .lib's, but im looking to do it via script or maybe
-        a top level cmake CMakeList.txt file we would have to put together,
-        the latter being the preferable option.  
+    a  -Need to install .lib files and include files into /modules/include /modules/lib  
 
 4.  PS
     a  -both glfw and vk-bootstrap have example src code within and .exe's
