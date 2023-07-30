@@ -8,7 +8,7 @@ Alrighty going to break this up into a few sections to start.
     b  -visual studio (for now)  
     c  -visual studio code  
     d  -glfw - git clone https://github.com/charles-lunarg/vk-bootstrap.git  
-    e  -vk-bootstrap - git clone https://github.com/glfw/glfw.git 
+    e  -vk-bootstrap - git clone https://github.com/glfw/glfw.git   
     f  -vulkan SDK - https://vulkan.lunarg.com/
 
 2. Objectives  
