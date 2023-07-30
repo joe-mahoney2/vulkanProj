@@ -8,7 +8,8 @@ Alrighty going to break this up into a few sections to start.
     b  -visual studio (for now)  
     c  -visual studio code  
     d  -glfw - git clone https://github.com/charles-lunarg/vk-bootstrap.git  
-    e  -vk-bootstrap - git clone https://github.com/glfw/glfw.git  
+    e  -vk-bootstrap - git clone https://github.com/glfw/glfw.git 
+    f  -vulkan SDK - https://vulkan.lunarg.com/
 
 2. Objectives  
     a  -Boil down in some way (TBD), further boil down glfw and the setup   
@@ -16,7 +17,7 @@ Alrighty going to break this up into a few sections to start.
         handle all of the setup via constructors/ cleanup via destructors  
   
 3. Current issues (feel free to work ahead with whatever workaround you can find)  
-    a  -Need to install .lib files and include files into /modules/include /modules/lib  
+    a  -configure basic vk-bootstrap setup code with CMakeList.txt file  
 
 4.  PS
     a  -both glfw and vk-bootstrap have example src code within and .exe's
