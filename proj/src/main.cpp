@@ -9,9 +9,10 @@
 
 typedef struct {
     GLFWwindow* window;
-    vkb::InstanceBuilder builder;
     vkb::Instance vkb_inst;
-    vkb::PhysicalDeviceSelector selector;
+    VkSurfaceKHR surface;
+    vkb::Device device;
+    vkb::Swapchain swapchain;
 } vk_s;
 
 vk_s vkCtl = {};
@@ -30,38 +31,6 @@ int initWindow () {
 }
 
 int initVulkan() {
-    int status = SUCCESS;
-    auto inst_ret = vkCtl.builder.set_app_name ("Example Vulkan Application")
-                        .request_validation_layers ()
-                        .use_default_debug_messenger ()
-                        .build ();
-
-    if (!inst_ret) {
-        status = FAIL;
-        std::cout << "Failed to create Vulkan instance. Error: " << inst_ret.error().message() << "\n";
-        return status;
-    } 
-    else {
-        vkCtl.vkb_inst = inst_ret.value ();
-    }
-
- 
-
-
-
-
-
-
-
-
-    // if (!phys_ret) {
-    //     status = FAIL;
-    //     std::cerr << "Failed to select Vulkan Physical Device. Error: " << phys_ret.error().message() << "\n";
-    //     return status;
-    // }
-    // else {
-
-    // }
 
     return status;
 }
