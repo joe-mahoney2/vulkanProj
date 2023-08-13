@@ -2,3 +2,4 @@ modules/
 out/
 .vscode/
 *.spv
+globalDefs.h
