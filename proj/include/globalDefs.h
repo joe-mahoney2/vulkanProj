@@ -1,1 +1,0 @@
-#define SHADER_PATH "C:/Users/xjose/vulkanProj/proj/src/shaders"
