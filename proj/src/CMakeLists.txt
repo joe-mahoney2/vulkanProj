@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.26.0)
 project(vulkan)
 
 #add_subdirectory <- may use this later (compartmentalize stuffs)
-#also looking for options in showing compiler args on build 
+
+#compile shader code
+execute_process(COMMAND bash "./shaders/rootBuild.sh")
 
 #INCLUDE PATHS
 include_directories(../include)
