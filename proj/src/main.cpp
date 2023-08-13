@@ -1,10 +1,15 @@
 #define GLFW_INCLUDE_VULKAN
 
 #include<iostream>
+#include<vector>
+#include <fstream>
+#include <string>
 
 #include <GLFW/glfw3.h>
 #include <VkBootstrap.h>
 #include <VkBootstrapDispatch.h>
+
+#include "globalDefs.h"
 
 #define SUCCESS 1
 #define FAIL 0
@@ -20,18 +25,14 @@ typedef struct {
 struct RenderData {
 	VkQueue graphics_queue;
 	VkQueue present_queue;
-
 	std::vector<VkImage> swapchain_images;
 	std::vector<VkImageView> swapchain_image_views;
 	std::vector<VkFramebuffer> framebuffers;
-
 	VkRenderPass render_pass;
 	VkPipelineLayout pipeline_layout;
 	VkPipeline graphics_pipeline;
-
 	VkCommandPool command_pool;
 	std::vector<VkCommandBuffer> command_buffers;
-
 	std::vector<VkSemaphore> available_semaphores;
 	std::vector<VkSemaphore> finished_semaphore;
 	std::vector<VkFence> in_flight_fences;
@@ -42,6 +43,26 @@ struct RenderData {
 //globals for now class members later
 vk_s vkCtl = {};
 RenderData renderData;
+
+
+std::vector<char> readFile (const std::string& filename) {
+	std::ifstream file (filename, std::ios::ate | std::ios::binary);
+
+	if (!file.is_open ()) {
+		throw std::runtime_error ("failed to open file!");
+	}
+
+	size_t file_size = (size_t)file.tellg ();
+	std::vector<char> buffer (file_size);
+
+	file.seekg (0);
+	file.read (buffer.data (), static_cast<std::streamsize> (file_size));
+
+	file.close ();
+
+	return buffer;
+}
+
 
 int initWindow () {
     int status = SUCCESS;
@@ -165,12 +186,41 @@ int initRenderData() {
     return SUCCESS;   
 }
 
+VkShaderModule createShaderModule (const std::vector<char>& code) {
+	VkShaderModuleCreateInfo create_info = {};
+	create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	create_info.codeSize = code.size ();
+	create_info.pCode = reinterpret_cast<const uint32_t*> (code.data ());
+
+	VkShaderModule shaderModule;
+	if (vkCreateShaderModule(vkCtl.device, &create_info, nullptr, &shaderModule) != VK_SUCCESS) {
+		return VK_NULL_HANDLE; // failed to create shader module
+	}
+
+	return shaderModule;
+}
+
+int initGraphicsPipe() {
+	auto vert_code = readFile(std::string(SHADER_PATH) + "/vert.spv");
+	auto frag_code = readFile(std::string(SHADER_PATH) + "/frag.spv");
+
+	VkShaderModule vert_module = createShaderModule(vert_code);
+	VkShaderModule frag_module = createShaderModule(frag_code);
+	if (vert_module == VK_NULL_HANDLE || frag_module == VK_NULL_HANDLE) {
+		std::cout << "failed to create shader module\n";
+		return FAIL;
+	}
+
+	return SUCCESS;
+}
+
 int main() {
 
-    if (initWindow()) { std::cout << "success::initWindow" << std::endl;}
-    if (initVulkan()) { std::cout << "success::initVulkan" << std::endl;}
-    if (initSwapChain()) { std::cout << "success::initSwapChain" << std::endl;}
-    if (initRenderData()) { std::cout << "success::initRenderData" << std::endl;}
+    if (initWindow()) { std::cout << "success::initWindow" << std::endl; }
+    if (initVulkan()) { std::cout << "success::initVulkan" << std::endl; }
+    if (initSwapChain()) { std::cout << "success::initSwapChain" << std::endl; }
+    if (initRenderData()) { std::cout << "success::initRenderData" << std::endl; }
+	if (initGraphicsPipe()) { std::cout << "success::initGraphicsPipe" << std::endl; }
 
     while (!glfwWindowShouldClose(vkCtl.window)) {
         glfwPollEvents();

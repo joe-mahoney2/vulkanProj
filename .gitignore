@@ -1,3 +1,4 @@
 modules/
 out/
 .vscode/
+*.spv
