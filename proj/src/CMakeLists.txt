@@ -15,7 +15,7 @@ include_directories($ENV{VK_SDK_PATH}/include)
 add_executable(test main.cpp)
 
 #generate defines header
-file(APPEND ../include/globalDefs.h "#define SHADER_PATH \"${CMAKE_SOURCE_DIR}/shaders\"\n")
+file(WRITE ../include/globalDefs.h "#define SHADER_PATH \"${CMAKE_SOURCE_DIR}/shaders\"\n")
 
 target_link_directories(test PUBLIC ../lib)
 target_link_directories(test PUBLIC ../../modules/lib)
