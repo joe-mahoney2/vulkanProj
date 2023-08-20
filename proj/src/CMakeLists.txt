@@ -15,14 +15,23 @@ include_directories($ENV{VK_SDK_PATH}/include)
 add_executable(test main.cpp)
 
 #generate defines header
-file(WRITE ../include/globalDefs.h "#define SHADER_PATH \"${CMAKE_SOURCE_DIR}/shaders\"")
+file(APPEND ../include/globalDefs.h "#define SHADER_PATH \"${CMAKE_SOURCE_DIR}/shaders\"\n")
 
+target_link_directories(test PUBLIC ../lib)
 target_link_directories(test PUBLIC ../../modules/lib)
 target_link_directories(test PUBLIC $ENV{VK_SDK_PATH}/Lib)
+
+if(EXISTS ./../lib/VkEngine.lib)
+#no-op
+else()
+    #build VkEngine lib if it's not built
+    execute_process(COMMAND bash "../lib/src/build.sh")
+endif()
 
 target_link_libraries(test 
     glfw3
     vk-bootstrap
     vulkan-1
+    VkEngine
 )
 

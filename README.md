@@ -20,4 +20,6 @@ Alrighty going to break this up into a few sections to start.
     a  -figure out more about shaders and display somthing more dynamic then a triangle    
 
 4.  PS
-    a  -both glfw and vk-bootstrap have example src code within and .exe's
+    a  -both glfw and vk-bootstrap have example src code within and .exe's  
+    b  -some fun reading https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#initialization-functionpointers  
+    c  -https://github.com/KhronosGroup/Vulkan-Guide
