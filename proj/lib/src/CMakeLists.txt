@@ -8,7 +8,10 @@ include_directories(../../../modules/include)
 include_directories(../../../modules/GLFW)
 include_directories($ENV{VK_SDK_PATH}/include)
 
-add_library(VkEngine STATIC VkEngine.cpp)
+add_library(VkEngine STATIC 
+    VkEngine.cpp 
+    GlfwInterface.cpp
+)
 
 target_link_directories(VkEngine PUBLIC ../../../modules/lib)
 target_link_directories(VkEngine PUBLIC $ENV{VK_SDK_PATH}/Lib)

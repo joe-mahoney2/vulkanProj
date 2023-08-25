@@ -8,8 +8,8 @@ cmake	-S ./modules/glfw \
 	-DCMAKE_INSTALL_LIBDIR=./lib \
 	-B ./modules/glfw/out/build
 
-cmake --build ./modules/glfw/out/build
-cmake --install ./modules/glfw/out/build --config "debug"
+cmake --build ./modules/glfw/out/build --config "Release"
+cmake --install ./modules/glfw/out/build --config "Release"
 #
 # SETUP VK-BOOTSTRAP
 cmake 	-S ./modules/vk-bootstrap \
@@ -18,5 +18,5 @@ cmake 	-S ./modules/vk-bootstrap \
 	-DCMAKE_INSTALL_LIBDIR=./lib \
 	-B ./modules/vk-bootstrap/out/build \
 
-cmake --build ./modules/vk-bootstrap/out/build
-cmake --install ./modules/vk-bootstrap/out/build --config "debug"
+cmake --build ./modules/vk-bootstrap/out/build --config "Release"
+cmake --install ./modules/vk-bootstrap/out/build --config "Release"
