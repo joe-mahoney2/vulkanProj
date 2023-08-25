@@ -45,15 +45,25 @@ int VkEngine::initVulkan() {
     // initialize vulkan device
     vkCtl.vkbDevice = dev_ret.value ();
 
-    // Get the graphics queue with a helper function
     auto graphics_queue_ret =  vkCtl.vkbDevice.get_queue (vkb::QueueType::graphics);
     if (!graphics_queue_ret) {
         std::cerr << "Failed to get graphics queue. Error: " << graphics_queue_ret.error().message() << "\n";
         return FAIL;
     }
+    // initialize graphics queue
     VkQueue graphics_queue = graphics_queue_ret.value ();
 
-    return SUCCESS;
+
+    vkb::SwapchainBuilder swapchain_builder{vkCtl.vkbDevice};
+	auto swap_ret = swapchain_builder.set_old_swapchain(vkCtl.swapchain).build();
+	if (!swap_ret) {
+		std::cout << swap_ret.error().message() << " " << swap_ret.vk_result() << "\n";
+        return FAIL;
+	}
+    vkb::destroy_swapchain(vkCtl.swapchain);
+    // initialize swapchain
+	vkCtl.swapchain = swap_ret.value ();
+	return SUCCESS;
 }
 
 VkEngine::~VkEngine() {}

@@ -10,11 +10,12 @@
 #include "GlfwInterface.h"
 
 typedef struct {
-    vkb::Instance vkbInst;      /* vulkan instance */
-    vkb::Device   vkbDevice;    /* vulkan physical device */
-    VkQueue       gfxQueue;     /* vulkan graphics queue */
-    VkSurfaceKHR  surface;      /* vulkan surface */
-    GlfwInterface *glfw;        /* glfw window interface */
+    vkb::Instance  vkbInst;    /* vulkan instance */
+    vkb::Device    vkbDevice;  /* vulkan physical device */
+    VkQueue        gfxQueue;   /* vulkan graphics queue */
+    vkb::Swapchain swapchain;  /* vulkan swapchain */
+    VkSurfaceKHR   surface;    /* vulkan surface */
+    GlfwInterface  *glfw;      /* glfw window interface */
 } vkCtl_t;
 
 
