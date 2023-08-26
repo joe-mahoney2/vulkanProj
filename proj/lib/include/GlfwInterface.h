@@ -8,6 +8,9 @@
 typedef struct glfwInput {
     double cursorX;
     double cursorY;
+    bool rightMb;
+    bool leftMb;
+    bool midMb;
 } glfwInput_t;
 
 class GlfwInterface {
@@ -18,6 +21,8 @@ class GlfwInterface {
 
         static glfwInput_t winInput;
         static void cursorPosition(GLFWwindow* win, double x, double y);
+        static void mouseButtonPress(GLFWwindow* window, int button, int action, int mods);
+        static void buttonHandle(int action, bool *button);
 
         GLFWwindow* window;
 
