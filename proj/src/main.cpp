@@ -9,6 +9,8 @@ int main() {
 
 	while (!glfwWindowShouldClose(engine.vkCtl.glfw->window)) {
 		glfwPollEvents();
+		if (engine.drawFrame() == FAIL)
+			break;
 	}
 	return 0;
 }

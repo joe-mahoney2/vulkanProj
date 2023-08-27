@@ -10,6 +10,8 @@
 #include "YourMom.h"
 #include "GlfwInterface.h"
 
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
 typedef struct vkCtl {
     vkb::Instance  vkbInst;    /* vulkan instance */
     vkb::Device    vkbDevice;  /* vulkan physical device */
@@ -20,7 +22,7 @@ typedef struct vkCtl {
 } vkCtl_t;
 
 typedef struct RenderData {
-	VkQueue graphics_queue;                         /**/
+	VkQueue gfxQueue;                         /**/
 	VkQueue present_queue;                          /**/
 	std::vector<VkImage> scImages;                  /**/
 	std::vector<VkImageView> scImageViews;          /**/
@@ -44,8 +46,18 @@ class VkEngine {
         // initializer
         int initGlfw();
         int initVulkan();
+        int initSwapChain();
         int initRenderData();
-        int initGfxPipe();
+        int initGfxPipeline();
+        int initFrameBuffer();
+        int initCmdBuffer();
+        int initCmdPool();
+        int initSyncObjects();
+
+        int recreateSwapChain();
+        int drawFrame();
+
+        VkShaderModule createShaderModule(const std::vector<char>&);
 
         vkCtl_t vkCtl; 
         RenderData_t vkRen;
