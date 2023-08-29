@@ -3,6 +3,8 @@ well see where this goes
 
 Alrighty going to break this up into a few sections to start.  
 
+**test
+
 1. What i'm using   
     a  -shell = git bash https://git-scm.com/downloads  
     b  -visual studio (using windows toolkit)   
