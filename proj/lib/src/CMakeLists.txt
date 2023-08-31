@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26.0)
-set(CMAKE_OSX_ARCHITECTURES "arm64")
+set(CMAKE_OSX_ARCHITECTURES "arm64") # set architecture to arm64 (apple m1)
 project(VkEngine)
 
 set(CMAKE_CXX_STANDARD 11) # set compiler standard to c++11
