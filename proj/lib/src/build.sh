@@ -2,7 +2,8 @@
 #build this shit here son
 dir=${BASH_SOURCE[0]}
 
-base=${dir::-8}
+base=${dir%/*} # this expression removes the last component of the path
+echo $base
 src=$base
 out=$base\out/build
 
