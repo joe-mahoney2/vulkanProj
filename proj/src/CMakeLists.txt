@@ -1,8 +1,15 @@
 cmake_minimum_required(VERSION 3.26.0)
-set(CMAKE_OSX_ARCHITECTURES "arm64") #set architecture to arm64 (apple m1)
 project(vulkan)
 
-#set compiler
+# check system processor for archirecture and launch accordingly
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+    set(CMAKE_OSX_ARCHITECTURES "arm64")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+    set(CMAKE_OSX_ARCHITECTURES "x86_64")
+else()
+    message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+
 set(CMAKE_CXX_STANDARD 11) #set c++ standard to c++11 (vulkan uses c++11)
 
 #add_subdirectory <- may use this later (compartmentalize stuffs)
@@ -16,11 +23,11 @@ include_directories(../lib/include)
 include_directories(../../modules/include)
 include_directories(../../modules/GLFW)
 include_directories($ENV{VK_SDK_PATH}/include)
-#compiler option 
+
 # add_compile_options(-Wno-c++11-extensions) #ignore c++11 extensions warning
 
+
 #add options for each render file 
-#add_executable(test triangle.cpp)
 add_executable(test main.cpp)
 
 #generate defines header
@@ -31,6 +38,9 @@ file(APPEND ../include/globalDefs.h "#define FAIL 0\n")
 target_link_directories(test PUBLIC ../lib)
 target_link_directories(test PUBLIC ../../modules/lib)
 target_link_directories(test PUBLIC $ENV{VK_SDK_PATH}/lib)
+
+find_package(glfw3 REQUIRED)
+target_link_libraries(test glfw)
 
 if(EXISTS ./../lib/VkEngine.lib)
 #no-op

@@ -1,8 +1,16 @@
 cmake_minimum_required(VERSION 3.26.0)
-set(CMAKE_OSX_ARCHITECTURES "arm64") # set architecture to arm64 (apple m1)
 project(VkEngine)
 
-set(CMAKE_CXX_STANDARD 11) # set compiler standard to c++11
+# check system processor for archirecture and launch accordingly
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+    set(CMAKE_OSX_ARCHITECTURES "arm64")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+    set(CMAKE_OSX_ARCHITECTURES "x86_64")
+else()
+    message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+
+set(CMAKE_CXX_STANDARD 11) #set c++ standard to c++11 (vulkan uses c++11)
 
 #INCLUDE PATHS
 include_directories(../include)
