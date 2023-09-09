@@ -4,3 +4,4 @@ out/
 *.spv
 globalDefs.h
 *.lib
+*.exe
