@@ -24,7 +24,7 @@ int GlfwInterface::initWindow() {
 void GlfwInterface::cursorPosition(GLFWwindow* win, double x, double y) {
     winInput.cursorX = x;
     winInput.cursorY = y;
-    std::cout << "cursor callback x::y -> " <<  winInput.cursorX << "::" << winInput.cursorY << std::endl;
+    // std::cout << "cursor callback x::y -> " <<  winInput.cursorX << "::" << winInput.cursorY << std::endl;
 }
 
 
@@ -34,15 +34,15 @@ void GlfwInterface::mouseButtonPress(GLFWwindow* window, int button, int action,
         // determine button states
         case GLFW_MOUSE_BUTTON_LEFT:
             buttonHandle(action, &winInput.leftMb);
-            std::cout << "mouse LMB state -> " << winInput.leftMb <<std::endl;
+            // std::cout << "mouse LMB state -> " << winInput.leftMb <<std::endl;
             break;
         case GLFW_MOUSE_BUTTON_RIGHT:
             buttonHandle(action, &winInput.rightMb);
-            std::cout << "mouse RMB state -> " << winInput.rightMb <<std::endl;
+            // std::cout << "mouse RMB state -> " << winInput.rightMb <<std::endl;
             break;
         case GLFW_MOUSE_BUTTON_MIDDLE:
             buttonHandle(action, &winInput.midMb);
-            std::cout << "mouse MMB state -> " << winInput.midMb <<std::endl;
+            // std::cout << "mouse MMB state -> " << winInput.midMb <<std::endl;
             break;
         default:
             break;
