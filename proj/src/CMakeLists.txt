@@ -40,3 +40,5 @@ target_link_libraries(test
     vulkan-1
     VkEngine
 )
+
+install(TARGETS test DESTINATION "${CMAKE_SOURCE_DIR}./")
