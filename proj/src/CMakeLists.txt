@@ -34,6 +34,9 @@ else()
     execute_process(COMMAND bash "../lib/src/build.sh")
 endif()
 
+#temp
+execute_process(COMMAND bash "../lib/src/build.sh")
+
 target_link_libraries(test 
     glfw3
     vk-bootstrap
