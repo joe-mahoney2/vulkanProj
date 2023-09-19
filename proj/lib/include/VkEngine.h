@@ -3,7 +3,9 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <array>
 
+#include <glm/glm.hpp>
 #include <VkBootstrap.h>
 
 #include "globalDefs.h"
@@ -21,22 +23,42 @@ typedef struct vkCtl {
     GlfwInterface  *glfw;      /* glfw window interface */
 } vkCtl_t;
 
+struct Vertex {
+    glm::vec2 pos;
+    glm::vec3 color;
+};
+
+
+
+const std::vector<Vertex> vertices = {
+    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+};
+
 typedef struct RenderData {
-	VkQueue gfxQueue;                         /**/
-	VkQueue present_queue;                          /**/
-	std::vector<VkImage> scImages;                  /**/
-	std::vector<VkImageView> scImageViews;          /**/
-	std::vector<VkFramebuffer> frameBuffers;        /**/
-	VkRenderPass renderPass;                        /* rendering stuff in passes kinda*/
-	VkPipelineLayout pipeLayout;                    /**/
-	VkPipeline gfxPipe;                             /**/
-	VkCommandPool cmdPool;                          /**/
-	std::vector<VkCommandBuffer> cmdBuffers;        /**/
-	std::vector<VkSemaphore> available_semaphores;  /**/
-	std::vector<VkSemaphore> finished_semaphore;    /**/
-	std::vector<VkFence> in_flight_fences;          /**/
-	std::vector<VkFence> image_in_flight;           /**/
-	size_t current_frame = 0;                       /* current frame*/
+	VkQueue gfxQueue;                              /**/
+	VkQueue present_queue;                         /**/
+	std::vector<VkImage> scImages;                 /**/
+	std::vector<VkImageView> scImageViews;         /**/
+	std::vector<VkFramebuffer> frameBuffers;       /**/
+	VkRenderPass renderPass;                       /* rendering stuff in passes kinda*/
+	VkPipelineLayout pipeLayout;                   /**/
+	VkPipeline gfxPipe;                            /**/
+	VkCommandPool cmdPool;                         /**/
+	std::vector<VkCommandBuffer> cmdBuffers;       /**/
+	std::vector<VkSemaphore> available_semaphores; /**/
+	std::vector<VkSemaphore> finished_semaphore;   /**/
+	std::vector<VkFence> in_flight_fences;         /**/
+	std::vector<VkFence> image_in_flight;          /**/
+    VkVertexInputBindingDescription bindingDescription;
+    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
+    VkMemoryRequirements memRequirements;
+    VkPhysicalDeviceMemoryProperties memProperties;
+    VkBufferCreateInfo bufferInfo;
+    VkBuffer vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
+	size_t current_frame = 0;                      /* current frame*/
 } RenderData_t;
 
 class VkEngine {
@@ -53,6 +75,10 @@ class VkEngine {
         int initCmdBuffer();
         int initCmdPool();
         int initSyncObjects();
+
+        int initBindingDescription();
+        int initVertexBuffers();
+        uint32_t findVkMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
         int recreateSwapChain();
         int drawFrame();
