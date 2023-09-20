@@ -52,12 +52,15 @@ typedef struct RenderData {
 	std::vector<VkFence> in_flight_fences;         /**/
 	std::vector<VkFence> image_in_flight;          /**/
     VkVertexInputBindingDescription bindingDescription;
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
     VkMemoryRequirements memRequirements;
     VkPhysicalDeviceMemoryProperties memProperties;
     VkBufferCreateInfo bufferInfo;
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
 	size_t current_frame = 0;                      /* current frame*/
 } RenderData_t;
 
@@ -78,6 +81,17 @@ class VkEngine {
 
         int initBindingDescription();
         int initVertexBuffers();
+
+        int copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+        int createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, 
+            VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+
+        int createVertexBuffer();
+
+
+
+
+
         uint32_t findVkMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
         int recreateSwapChain();

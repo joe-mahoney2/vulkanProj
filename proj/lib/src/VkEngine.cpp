@@ -1,6 +1,15 @@
 #include "VkEngine.h"
 
 VkEngine::VkEngine() {
+
+	/*
+		initialize all structs ...etc
+	*/
+	memset(&vkRen, 0, sizeof(RenderData_t)); 
+
+	/*
+		initialize all renderer
+	*/
     if (initGlfw()) { 
 		std::cout << "VkEngine::initGlfw SUCCESS!" << std::endl; 
 	}
@@ -10,12 +19,16 @@ VkEngine::VkEngine() {
 	if (initSwapChain()) { 
 		std::cout << "VkEngine::initSwapChain SUCCESS!" << std::endl; 
 	}
+
+
 	if(initVertexBuffers()) {
 		std::cout << "VkEngine::initVertexBuffers SUCCESS!" << std::endl;
 	}
 	if(initBindingDescription()) {
 		std::cout << "VkEngine::initBindingDescription SUCCESS!" << std::endl;
 	}
+
+
     if (initRenderData()) { 
 		std::cout << "VkEngine::initRenderData SUCCESS!" << std::endl; 
 	}
@@ -35,6 +48,7 @@ VkEngine::VkEngine() {
 		std::cout << "VkEngine::initSyncObjects SUCCESS!" << std::endl;
 	}
 }
+
 /*
 	Initializer type function definitions beyond this comment
 */
@@ -120,6 +134,79 @@ int VkEngine::initSwapChain() {
 	}
     vkb::destroy_swapchain(vkCtl.swapchain);
 	vkCtl.swapchain = swap_ret.value ();
+	return SUCCESS;
+}
+
+int VkEngine::initBindingDescription() {
+	
+	vkRen.bindingDescription.binding = 0;
+	vkRen.bindingDescription.stride = sizeof(Vertex);
+	vkRen.bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+	// float: VK_FORMAT_R32_SFLOAT
+	// vec2: VK_FORMAT_R32G32_SFLOAT
+	// vec3: VK_FORMAT_R32G32B32_SFLOAT
+	// vec4: VK_FORMAT_R32G32B32A32_SFLOAT
+	vkRen.attributeDescriptions[0].binding = 0;
+	vkRen.attributeDescriptions[0].location = 0;
+	vkRen.attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+	vkRen.attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+	vkRen.attributeDescriptions[1].binding = 0;
+	vkRen.attributeDescriptions[1].location = 1;
+	vkRen.attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+	vkRen.attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+	vkRen.vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vkRen.vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vkRen.vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vkRen.attributeDescriptions.size());
+	vkRen.vertexInputInfo.pVertexBindingDescriptions = &vkRen.bindingDescription;
+	vkRen.vertexInputInfo.pVertexAttributeDescriptions = 
+	vkRen.attributeDescriptions.data();
+
+	return SUCCESS;
+}
+
+int VkEngine::initVertexBuffers() {
+    vkRen.bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    vkRen.bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+    vkRen.bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    vkRen.bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateBuffer(vkCtl.vkbDevice, &vkRen.bufferInfo, nullptr, &vkRen.vertexBuffer) != VK_SUCCESS) {
+        return FAIL;
+    }
+
+	vkGetBufferMemoryRequirements(vkCtl.vkbDevice, vkRen.vertexBuffer, &vkRen.memRequirements);
+	vkGetPhysicalDeviceMemoryProperties(vkCtl.vkbDevice.physical_device, &vkRen.memProperties);
+
+	VkMemoryAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = vkRen.memRequirements.size;
+
+	if(!(allocInfo.memoryTypeIndex = 
+		findVkMemoryType(vkRen.memRequirements.memoryTypeBits, 
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | 
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))) {
+
+		std::cout << "findVkMemoryType failed" << std::endl;
+		return FAIL;
+	}
+
+	if (vkAllocateMemory(vkCtl.vkbDevice, 
+		&allocInfo, 
+		nullptr, 
+		&vkRen.vertexBufferMemory) != VK_SUCCESS) {
+
+			std::cout << "failed to allocate vertex buffer memory!" << std::endl;
+			return FAIL;
+	}
+
+	if(vkBindBufferMemory(vkCtl.vkbDevice, vkRen.vertexBuffer, 
+		vkRen.vertexBufferMemory, 0) != VK_SUCCESS) {
+			std::cout << "vertex buffer bound failed!" << std::endl;
+	}
+
 	return SUCCESS;
 }
 
@@ -221,22 +308,12 @@ int VkEngine::initGfxPipeline() {
 			frag_stage_info 
 		};
 
-
-												VkVertexInputBindingDescription bindingDescription{};
-												bindingDescription.binding = 0;
-												bindingDescription.stride = sizeof(Vertex);
-												bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-												VkPipelineVertexInputStateCreateInfo vertex_input_info = {};
-												vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-												vertex_input_info.vertexBindingDescriptionCount = 1;
-												vertex_input_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(vkRen.attributeDescriptions.size());
-												vertex_input_info.pVertexAttributeDescriptions = vkRen.attributeDescriptions.data();;
-												vertex_input_info.pVertexBindingDescriptions = &bindingDescription;
-
-
-
-
+	VkPipelineVertexInputStateCreateInfo vertex_input_info = {};
+	vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertex_input_info.vertexBindingDescriptionCount = 1;
+	vertex_input_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(vkRen.attributeDescriptions.size());
+	vertex_input_info.pVertexAttributeDescriptions = vkRen.attributeDescriptions.data();;
+	vertex_input_info.pVertexBindingDescriptions = &vkRen.bindingDescription;
 
 	VkPipelineInputAssemblyStateCreateInfo input_assembly = {};
 	input_assembly.sType = 
@@ -457,25 +534,19 @@ int VkEngine::initCmdBuffer() {
 		vkCmdSetViewport (vkRen.cmdBuffers[i], 0, 1, &viewport);
 		vkCmdSetScissor (vkRen.cmdBuffers[i], 0, 1, &scissor);
 
-										VkBufferCreateInfo bufferInfo{};
-										bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-										bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-										bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-										bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		void* data;
+		vkMapMemory(vkCtl.vkbDevice, vkRen.vertexBufferMemory, 0, vkRen.bufferInfo.size, 0, &data);
+		memcpy(data, vertices.data(), (size_t) vkRen.bufferInfo.size);
+		vkUnmapMemory(vkCtl.vkbDevice, vkRen.vertexBufferMemory);
 
-										void* data;
-										vkMapMemory(vkCtl.vkbDevice, vkRen.vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-										memcpy(data, vertices.data(), (size_t) bufferInfo.size);
-										vkUnmapMemory(vkCtl.vkbDevice, vkRen.vertexBufferMemory);
+		VkBuffer vertexBuffers[] = {vkRen.vertexBuffer};
+		VkDeviceSize offsets[] = {0};
+		vkCmdBindVertexBuffers(vkRen.cmdBuffers[i], 0, 1, vertexBuffers, offsets);
+		vkCmdBindPipeline(vkRen.cmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, vkRen.gfxPipe);
+		vkCmdBeginRenderPass (vkRen.cmdBuffers[i], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
-										VkBuffer vertexBuffers[] = {vkRen.vertexBuffer};
-										VkDeviceSize offsets[] = {0};
-										vkCmdBindVertexBuffers(vkRen.cmdBuffers[i], 0, 1, vertexBuffers, offsets);
-										vkCmdBindPipeline(vkRen.cmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, vkRen.gfxPipe);
-										vkCmdBeginRenderPass (vkRen.cmdBuffers[i], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
-
-										vkCmdDraw(vkRen.cmdBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
-										vkCmdEndRenderPass (vkRen.cmdBuffers[i]);
+		vkCmdDraw(vkRen.cmdBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+		vkCmdEndRenderPass (vkRen.cmdBuffers[i]);
 
 		if (vkEndCommandBuffer (vkRen.cmdBuffers[i]) != VK_SUCCESS) {
 			std::cout << "failed to record command buffer\n";
@@ -632,87 +703,81 @@ VkShaderModule VkEngine::createShaderModule(const std::vector<char>& code) {
 	return shaderModule;
 }
 
-int VkEngine::initBindingDescription() {
-	VkVertexInputBindingDescription bindingDescription{};
-	bindingDescription.binding = 0;
-	bindingDescription.stride = sizeof(Vertex);
-	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-	// float: VK_FORMAT_R32_SFLOAT
-	// vec2: VK_FORMAT_R32G32_SFLOAT
-	// vec3: VK_FORMAT_R32G32B32_SFLOAT
-	// vec4: VK_FORMAT_R32G32B32A32_SFLOAT
-	vkRen.attributeDescriptions[0].binding = 0;
-	vkRen.attributeDescriptions[0].location = 0;
-	vkRen.attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-	vkRen.attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-	vkRen.attributeDescriptions[1].binding = 0;
-	vkRen.attributeDescriptions[1].location = 1;
-	vkRen.attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-	vkRen.attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-	
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-
-	vertexInputInfo.vertexBindingDescriptionCount = 1;
-	vertexInputInfo.vertexAttributeDescriptionCount = 
-		static_cast<uint32_t>(vkRen.attributeDescriptions.size());
-	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-	vertexInputInfo.pVertexAttributeDescriptions = 
-		vkRen.attributeDescriptions.data();
-
-	return SUCCESS;
-}
-
-int VkEngine::initVertexBuffers() {
-    VkBufferCreateInfo bufferInfo{};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    if (vkCreateBuffer(vkCtl.vkbDevice, &bufferInfo, nullptr, &vkRen.vertexBuffer) != VK_SUCCESS) {
-        return FAIL;
-    }
-
-	vkGetBufferMemoryRequirements(vkCtl.vkbDevice, vkRen.vertexBuffer, &vkRen.memRequirements);
-	vkGetPhysicalDeviceMemoryProperties(vkCtl.vkbDevice.physical_device, &vkRen.memProperties);
-
-	VkMemoryAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocInfo.allocationSize = vkRen.memRequirements.size;
-
-	if(!(allocInfo.memoryTypeIndex = 
-		findVkMemoryType(vkRen.memRequirements.memoryTypeBits, 
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | 
-		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))) {
-
-		std::cout << "findVkMemoryType failed" << std::endl;
-		return FAIL;
-	}
-
-	if (vkAllocateMemory(vkCtl.vkbDevice, 
-		&allocInfo, 
-		nullptr, 
-		&vkRen.vertexBufferMemory) != VK_SUCCESS) {
-
-			std::cout << "failed to allocate vertex buffer memory!" << std::endl;
-			return FAIL;
-	}
-
-	if(vkBindBufferMemory(vkCtl.vkbDevice, vkRen.vertexBuffer, 
-		vkRen.vertexBufferMemory, 0) != VK_SUCCESS) {
-			std::cout << "vertex buffer bound failed!" << std::endl;
-	}
-
-	return SUCCESS;
-}
-
 VkEngine::~VkEngine() {
 	vkDestroyBuffer(vkCtl.vkbDevice, vkRen.vertexBuffer, nullptr);
 	vkFreeMemory(vkCtl.vkbDevice, vkRen.vertexBufferMemory, nullptr);
+}
+
+/*
+	Buffer creation routines
+		createBuffer - creates generic buffer
+*/
+
+int VkEngine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = vkRen.cmdPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(vkCtl.vkbDevice, &allocInfo, &commandBuffer);
+
+	return SUCCESS;
+}
+
+int VkEngine::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, 
+	VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateBuffer(vkCtl.vkbDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create buffer!");
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(vkCtl.vkbDevice, buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = findVkMemoryType(memRequirements.memoryTypeBits, properties);
+
+    if (vkAllocateMemory(vkCtl.vkbDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+         std::cout << "failed to allocate buffer memory!" << std::endl;
+    }
+
+    vkBindBufferMemory(vkCtl.vkbDevice, buffer, bufferMemory, 0);
+
+	return SUCCESS;
+}
+
+int VkEngine::createVertexBuffer() {
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    
+    createBuffer(bufferSize, 
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | 
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+		vkRen.stagingBuffer, 
+		vkRen.stagingBufferMemory);
+
+    void* data;
+    vkMapMemory(vkCtl.vkbDevice, vkRen.stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, vertices.data(), (size_t) bufferSize);
+    vkUnmapMemory(vkCtl.vkbDevice, vkRen.stagingBufferMemory);
+
+	createBuffer(bufferSize, 
+		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | 
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+		vkRen.vertexBuffer, 
+		vkRen.vertexBufferMemory);
+
+	return SUCCESS;
 }
 
 /*

@@ -12,5 +12,7 @@ int main() {
 		if (engine.drawFrame() == FAIL)
 			break;
 	}
+
+	delete &engine;
 	return 0;
 }
