@@ -20,7 +20,6 @@ VkEngine::VkEngine() {
 		std::cout << "VkEngine::initSwapChain SUCCESS!" << std::endl; 
 	}
 
-
 	if(initVertexBuffers()) {
 		std::cout << "VkEngine::initVertexBuffers SUCCESS!" << std::endl;
 	}
@@ -534,10 +533,7 @@ int VkEngine::initCmdBuffer() {
 		vkCmdSetViewport (vkRen.cmdBuffers[i], 0, 1, &viewport);
 		vkCmdSetScissor (vkRen.cmdBuffers[i], 0, 1, &scissor);
 
-		void* data;
-		vkMapMemory(vkCtl.vkbDevice, vkRen.vertexBufferMemory, 0, vkRen.bufferInfo.size, 0, &data);
-		memcpy(data, vertices.data(), (size_t) vkRen.bufferInfo.size);
-		vkUnmapMemory(vkCtl.vkbDevice, vkRen.vertexBufferMemory);
+		createVertexBuffer();
 
 		VkBuffer vertexBuffers[] = {vkRen.vertexBuffer};
 		VkDeviceSize offsets[] = {0};
@@ -711,6 +707,8 @@ VkEngine::~VkEngine() {
 /*
 	Buffer creation routines
 		createBuffer - creates generic buffer
+		copyBuffer   - copies src buffer to dest buffer  
+		etc          - somthing to do with host visable and device visable memory is more efficient hence the copy routines
 */
 
 int VkEngine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
@@ -723,6 +721,29 @@ int VkEngine::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize si
     VkCommandBuffer commandBuffer;
     vkAllocateCommandBuffers(vkCtl.vkbDevice, &allocInfo, &commandBuffer);
 
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+	VkBufferCopy copyRegion{};
+	copyRegion.srcOffset = 0; // Optional
+	copyRegion.dstOffset = 0; // Optional
+	copyRegion.size = size;
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	vkEndCommandBuffer(commandBuffer);
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+
+	vkQueueSubmit(vkRen.gfxQueue, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(vkRen.gfxQueue);
+
+	vkFreeCommandBuffers(vkCtl.vkbDevice, vkRen.cmdPool, 1, &commandBuffer);
 	return SUCCESS;
 }
 
@@ -771,11 +792,17 @@ int VkEngine::createVertexBuffer() {
     vkUnmapMemory(vkCtl.vkbDevice, vkRen.stagingBufferMemory);
 
 	createBuffer(bufferSize, 
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT |
 		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | 
 		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
 		vkRen.vertexBuffer, 
 		vkRen.vertexBufferMemory);
+
+	copyBuffer(vkRen.stagingBuffer, vkRen.vertexBuffer, bufferSize);
+
+    vkDestroyBuffer(vkCtl.vkbDevice, vkRen.stagingBuffer, nullptr);
+    vkFreeMemory(vkCtl.vkbDevice, vkRen.stagingBufferMemory, nullptr);
 
 	return SUCCESS;
 }
