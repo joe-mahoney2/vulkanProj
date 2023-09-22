@@ -28,13 +28,24 @@ struct Vertex {
     glm::vec3 color;
 };
 
+// const std::vector<Vertex> vertices = {
+//     {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+//     {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+//     {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+// };
 
 
-const std::vector<Vertex> vertices = {
-    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+const std::vector<uint16_t> indices {
+    0, 1, 2, 2, 3, 0
 };
+
+const std::vector<Vertex> vertices {
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+};
+
 
 typedef struct RenderData {
 	VkQueue gfxQueue;                              /**/
@@ -42,7 +53,7 @@ typedef struct RenderData {
 	std::vector<VkImage> scImages;                 /**/
 	std::vector<VkImageView> scImageViews;         /**/
 	std::vector<VkFramebuffer> frameBuffers;       /**/
-	VkRenderPass renderPass;                       /* rendering stuff in passes kinda*/
+	VkRenderPass renderPass;                       /**/
 	VkPipelineLayout pipeLayout;                   /**/
 	VkPipeline gfxPipe;                            /**/
 	VkCommandPool cmdPool;                         /**/
@@ -59,6 +70,8 @@ typedef struct RenderData {
     VkBufferCreateInfo bufferInfo;
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
+    VkBuffer indexBuffer;
+    VkDeviceMemory indexBufferMemory;
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
 	size_t current_frame = 0;                      /* current frame*/
@@ -85,12 +98,8 @@ class VkEngine {
         int copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
         int createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, 
             VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-
         int createVertexBuffer();
-
-
-
-
+        int createIndexBuffers();
 
         uint32_t findVkMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 

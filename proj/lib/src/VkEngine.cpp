@@ -20,11 +20,13 @@ VkEngine::VkEngine() {
 		std::cout << "VkEngine::initSwapChain SUCCESS!" << std::endl; 
 	}
 
+
 	if(initVertexBuffers()) {
 		std::cout << "VkEngine::initVertexBuffers SUCCESS!" << std::endl;
 	}
+
 	if(initBindingDescription()) {
-		std::cout << "VkEngine::initBindingDescription SUCCESS!" << std::endl;
+		std::cout << "VkEngine::initIndexBuffers SUCCESS!" << std::endl;
 	}
 
 
@@ -534,14 +536,20 @@ int VkEngine::initCmdBuffer() {
 		vkCmdSetScissor (vkRen.cmdBuffers[i], 0, 1, &scissor);
 
 		createVertexBuffer();
+		createIndexBuffers();
+		
 
 		VkBuffer vertexBuffers[] = {vkRen.vertexBuffer};
 		VkDeviceSize offsets[] = {0};
+
 		vkCmdBindVertexBuffers(vkRen.cmdBuffers[i], 0, 1, vertexBuffers, offsets);
+		vkCmdBindIndexBuffer(vkRen.cmdBuffers[i], vkRen.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
 		vkCmdBindPipeline(vkRen.cmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, vkRen.gfxPipe);
 		vkCmdBeginRenderPass (vkRen.cmdBuffers[i], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
-		vkCmdDraw(vkRen.cmdBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+		//vkCmdDraw(vkRen.cmdBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+		vkCmdDrawIndexed(vkRen.cmdBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 		vkCmdEndRenderPass (vkRen.cmdBuffers[i]);
 
 		if (vkEndCommandBuffer (vkRen.cmdBuffers[i]) != VK_SUCCESS) {
@@ -702,6 +710,9 @@ VkShaderModule VkEngine::createShaderModule(const std::vector<char>& code) {
 VkEngine::~VkEngine() {
 	vkDestroyBuffer(vkCtl.vkbDevice, vkRen.vertexBuffer, nullptr);
 	vkFreeMemory(vkCtl.vkbDevice, vkRen.vertexBufferMemory, nullptr);
+	
+    vkDestroyBuffer(vkCtl.vkbDevice, vkRen.indexBuffer, nullptr);
+    vkFreeMemory(vkCtl.vkbDevice, vkRen.indexBufferMemory, nullptr);
 }
 
 /*
@@ -804,6 +815,35 @@ int VkEngine::createVertexBuffer() {
     vkDestroyBuffer(vkCtl.vkbDevice, vkRen.stagingBuffer, nullptr);
     vkFreeMemory(vkCtl.vkbDevice, vkRen.stagingBufferMemory, nullptr);
 
+	return SUCCESS;
+}
+
+int VkEngine::createIndexBuffers() {
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+    createBuffer(bufferSize, 
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | 
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+		vkRen.stagingBuffer, 
+		vkRen.stagingBufferMemory);
+
+    void* data;
+    vkMapMemory(vkCtl.vkbDevice, vkRen.stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, indices.data(), (size_t) bufferSize);
+    vkUnmapMemory(vkCtl.vkbDevice, vkRen.stagingBufferMemory);
+
+    createBuffer(bufferSize, 
+	VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+	 VK_BUFFER_USAGE_INDEX_BUFFER_BIT, 
+	 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+	 vkRen.indexBuffer, 
+	 vkRen.indexBufferMemory);
+
+    copyBuffer(vkRen.stagingBuffer, vkRen.indexBuffer, bufferSize);
+
+    vkDestroyBuffer(vkCtl.vkbDevice, vkRen.stagingBuffer, nullptr);
+    vkFreeMemory(vkCtl.vkbDevice, vkRen.stagingBufferMemory, nullptr);
 	return SUCCESS;
 }
 
