@@ -6,7 +6,12 @@
 #include <array>
 #include <chrono>
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STBIDEF inline // this took me 30 mfin mins
+#include <stb/stb_image.h> 
+
 #define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -52,9 +57,9 @@ const std::vector<Vertex> vertices {
 };
 
 struct UniformBufferObject {
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
+    alignas(16) glm::mat4 model;
+    alignas(16) glm::mat4 view;
+    alignas(16) glm::mat4 proj;
 };
 
 
@@ -91,6 +96,8 @@ typedef struct RenderData {
     std::vector<void*> uniformBuffersMapped;
     VkDescriptorPool descriptorPool;
     std::vector<VkDescriptorSet> descriptorSets;
+    VkImage textureImage;
+    VkDeviceMemory textureImageMemory;
 	size_t current_frame = 0;                      /* current frame*/
 } RenderData_t;
 
@@ -123,7 +130,6 @@ class VkEngine {
 
         int initDescriptorPool();
         int initDescriptorSets();
-        int createDescriptorSetLayout();
 
         uint32_t findVkMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
@@ -132,6 +138,19 @@ class VkEngine {
         int drawFrame();
 
         VkShaderModule createShaderModule(const std::vector<char>&);
+
+        void createTextureImage();
+        void createImage(uint32_t width, uint32_t height, VkFormat format, 
+            VkImageTiling tiling, VkImageUsageFlags usage, 
+            VkMemoryPropertyFlags properties, VkImage& image, 
+            VkDeviceMemory& imageMemory);
+
+        void transitionImageLayout(VkImage image, VkFormat format, 
+            VkImageLayout oldLayout, VkImageLayout newLayout);
+
+        VkCommandBuffer beginSingleTimeCommands();
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+        void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
         vkCtl_t vkCtl; 
         RenderData_t vkRen;
