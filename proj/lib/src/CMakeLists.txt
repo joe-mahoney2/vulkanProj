@@ -4,6 +4,7 @@ project(VkEngine)
 #INCLUDE PATHS
 include_directories(../include)
 include_directories(../../include)
+include_directories(../../../modules)
 include_directories(../../../modules/include)
 include_directories(../../../modules/GLFW)
 include_directories($ENV{VK_SDK_PATH}/include)
