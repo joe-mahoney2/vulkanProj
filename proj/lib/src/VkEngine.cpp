@@ -660,19 +660,29 @@ int VkEngine::updateUniformBuffer(uint32_t current_image) {
     auto currentTime = std::chrono::high_resolution_clock::now();
     float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+	/*
+		fiddle with these to change how the displayed obbj appears
+		see glm::perspective for info 
+		...
+		glm::rotate
+		glm::lookAt
+		glm::perspective
+
+		(x,y,z)
+	*/
 	UniformBufferObject ubo{};
 	ubo.model = glm::rotate(glm::mat4(1.0f), 
-					time * glm::radians(90.0f), 
-					glm::vec3(0.0f, 0.0f, 1.0f));
+					time * glm::radians(0.0f), 
+					glm::vec3(1.0f, 1.0f, 1.0f));
 
-	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), 
-					glm::vec3(0.0f, 0.0f, 0.0f), 
-					glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f),  	//eye (camera) (x,y,z)
+					glm::vec3(0.0f, 0.0f, 0.0f), 			//center (target)
+					glm::vec3(0.0f, -1.0f, 0.0f));			//up 
 
 	ubo.proj = glm::perspective(glm::radians(45.0f), 
 					vkCtl.swapchain.extent.width / 
 					(float) vkCtl.swapchain.extent.height,
-					 0.1f, 10.0f);
+					 0.1f, 100.0f);
 
 	ubo.proj[1][1] *= -1;
 
