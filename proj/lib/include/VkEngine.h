@@ -36,24 +36,25 @@ typedef struct vkCtl {
 struct Vertex {
     glm::vec2 pos;
     glm::vec3 color;
+    glm::vec2 texCoord;
 };
-
-// const std::vector<Vertex> vertices = {
-//     {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-//     {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-//     {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
-// };
-
 
 const std::vector<uint16_t> indices {
     0, 1, 2, 2, 3, 0
 };
 
-const std::vector<Vertex> vertices {
-    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+// const std::vector<Vertex> vertices {
+//     {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+//     {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+//     {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+//     {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+// };
+
+const std::vector<Vertex> vertices = {
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+    {{ 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+    {{ 0.5f, 0.5f},  {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+    {{-0.5f, 0.5f},  {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 };
 
 struct UniformBufferObject {
@@ -80,7 +81,7 @@ typedef struct RenderData {
 	std::vector<VkFence> image_in_flight;          
     VkVertexInputBindingDescription bindingDescription;
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
-    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
+    std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions;
     VkMemoryRequirements memRequirements;
     VkPhysicalDeviceMemoryProperties memProperties;
     VkBufferCreateInfo bufferInfo;
@@ -98,6 +99,8 @@ typedef struct RenderData {
     std::vector<VkDescriptorSet> descriptorSets;
     VkImage textureImage;
     VkDeviceMemory textureImageMemory;
+    VkImageView textureImageView;
+    VkSampler textureSampler;
 	size_t current_frame = 0;                      /* current frame*/
 } RenderData_t;
 
@@ -151,6 +154,12 @@ class VkEngine {
         VkCommandBuffer beginSingleTimeCommands();
         void endSingleTimeCommands(VkCommandBuffer commandBuffer);
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+        void createTextureImageView();
+        void createTextureImageViews();
+        VkImageView createImageView(VkImage image, VkFormat format);
+            
+        void createTextureSampler();
 
         vkCtl_t vkCtl; 
         RenderData_t vkRen;
