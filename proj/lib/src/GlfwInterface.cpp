@@ -9,7 +9,7 @@ int GlfwInterface::initWindow() {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    if ((window = glfwCreateWindow(512, 512, "glfwWindow", NULL, NULL)) == NULL) {
+    if ((window = glfwCreateWindow(1028, 1028, "glfwWindow", NULL, NULL)) == NULL) {
         std::cout << "GlfwInterface::initWindow Failure to create Window" << std::endl;
         status = FAIL;
     }

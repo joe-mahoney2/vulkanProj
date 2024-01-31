@@ -1132,7 +1132,7 @@ void VkEngine::createTextureImage() {
 	int texHeight;
 	int texChannels;
 
-	std::string asset = std::string(ASSET_PATH) + "/FlyingDood.png";
+	std::string asset = std::string(ASSET_PATH) + "/count_sprite_sheet.png";
 
     stbi_uc* pixels = stbi_load(asset.c_str(), 
 		&texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
