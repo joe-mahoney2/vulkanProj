@@ -5,7 +5,9 @@
 #include <string>
 
 /*
-    Helper functions and stuff not directly related to the 
+    Helper functions and stuff not directly related to the
     main engine classes and functions go here
 */
-std::vector<char> readFile (const std::string& filename);
+std::vector<char> readFile(const std::string& filename);
+
+void error_msg(std::string output_message);

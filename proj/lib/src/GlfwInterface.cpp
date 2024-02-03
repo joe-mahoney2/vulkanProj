@@ -27,7 +27,6 @@ void GlfwInterface::cursorPosition(GLFWwindow* win, double x, double y) {
     // std::cout << "cursor callback x::y -> " <<  winInput.cursorX << "::" << winInput.cursorY << std::endl;
 }
 
-
 void GlfwInterface::mouseButtonPress(GLFWwindow* window, int button, int action, int mods) {
     switch (button)
     {

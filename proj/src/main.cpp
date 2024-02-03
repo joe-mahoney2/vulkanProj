@@ -1,18 +1,28 @@
-#include "VkEngine.h"
+#include "VkRender.h"
 #include "GlfwInterface.h"
 
 //define GlfwInterface interface static structure
 glfwInput_t GlfwInterface::winInput;
 
 int main() {
-	VkEngine engine;
+	// VkEngine engine;
 
-	while (!glfwWindowShouldClose(engine.vkCtl.glfw->window)) {
-		glfwPollEvents();
-		if (engine.drawFrame() == FAIL)
-			break;
-	}
+	// while (!glfwWindowShouldClose(engine.vkCtl.glfw->window)) {
+	// 	glfwPollEvents();
+	// 	if (engine.drawFrame() == FAIL)
+	// 		break;
+	// }
 
-	delete &engine;
+	// delete &engine;
+	// return 0;
+
+	VkRender rend;
+
+
+
+
+
+
+	
 	return 0;
 }

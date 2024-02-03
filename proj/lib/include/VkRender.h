@@ -7,12 +7,13 @@
 #include <chrono>
 
 /*
-    Module header buckets / module
+    Module header containers / module
     using structs/defs
 */
 #include "GLMDefs.h"
 #include "VKBDefs.h"
 #include "STBDefs.h"
+#include "VKRenderData.h"
 
 /*
     Engine defined headers
@@ -25,6 +26,17 @@ class VkRender {
 public:
     VkRender();
     ~VkRender();
+
+    int initGlfw();
+    int initVulkanBootstrap();
+    int initVulkanRenderer();
+    
+    int initVertexBuffers();
+    int initQueue();
+    int initRenderPass();
+
 private:
+    vulkan_ctl_t vulkan;
+    RenderData_t render_data;
 protected:
 };
